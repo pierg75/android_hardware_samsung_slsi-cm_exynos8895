@@ -1,22 +1,26 @@
 #ifndef __DECON_FB_H__
 #define __DECON_FB_H__
 
-#define MAX_DECON_WIN           8
+#define MAX_DECON_WIN           6
 #define MAX_DECON_EXT_WIN       3
 #define MAX_BUF_PLANE_CNT       3
+#define MAX_PLANE_CNT		3
+#define DECON_WIN_UPDATE_IDX	(6)
 
 typedef __u64 dma_addr_t;
 
 struct decon_win_rect {
-    int x;
-    int y;
-    __u32 w;
-    __u32 h;
+	int x;
+	int y;
+	u32 w;
+	u32 h;
 };
 
-struct decon_user_window {
-    int x;
-    int y;
+struct decon_rect {
+	u32 left;
+	u32 top;
+	u32 right;
+	u32 bottom;
 };
 
 struct s3c_fb_user_plane_alpha {
@@ -39,14 +43,12 @@ struct s3c_fb_user_ion_client {
 };
 
 enum decon_idma_type {
-	IDMA_G0 = 0x0,	/* Dedicated to WIN7 */
+	IDMA_G0 = 0,	/* Dedicated to WIN5 */
 	IDMA_G1,
 	IDMA_VG0,
 	IDMA_VG1,
-	IDMA_G2,
-	IDMA_G3,
-	IDMA_VGR0,
-	IDMA_VGR1,
+	IDMA_VGF0,
+	IDMA_VGF1,
 	ODMA_WB,
 	IDMA_G0_S,
 };
@@ -93,37 +95,40 @@ enum decon_blending {
     DECON_BLENDING_MAX = 3,
 };
 
-enum vpp_rotate {
-    VPP_ROT_NORMAL = 0x0,
-    VPP_ROT_XFLIP,
-    VPP_ROT_YFLIP,
-    VPP_ROT_180,
-    VPP_ROT_90,
-    VPP_ROT_90_XFLIP,
-    VPP_ROT_90_YFLIP,
-    VPP_ROT_270,
+enum dpp_flip {
+    DPP_FLIP_NONE = 0x0,
+    DPP_FLIP_X,
+    DPP_FLIP_Y,
+    DPP_FLIP_XY,
 };
 
-enum vpp_csc_eq {
-    BT_601_NARROW = 0x0,
-    BT_601_WIDE,
-    BT_709_NARROW,
-    BT_709_WIDE,
+enum dpp_csc_eq {
+    /* eq_mode : 6bits [5:0] */
+    CSC_STANDARD_SHIFT = 0,
+    CSC_BT_601 = 0,
+    CSC_BT_709 = 1,
+    CSC_BT_2020 = 2,
+    CSC_DCI_P3 = 3,
+    /* eq_mode : 3bits [8:6] */
+    CSC_RANGE_SHIFT = 6,
+    CSC_RANGE_LIMITED = 0x0,
+    CSC_RANGE_FULL = 0x1,
 };
 
-struct vpp_params {
-    dma_addr_t addr[MAX_BUF_PLANE_CNT];
-    enum vpp_rotate rot;
-    enum vpp_csc_eq eq_mode;
+struct dpp_params {
+	dma_addr_t addr[MAX_PLANE_CNT];
+	enum dpp_flip flip;
+	enum dpp_csc_eq eq_mode;
+	enum dpp_comp_src comp_src;
 };
 
 struct decon_frame {
-    int x;
-    int y;
-    __u32 w;
-    __u32 h;
-    __u32 f_w;
-    __u32 f_h;
+	int x;
+	int y;
+	u32 w;
+	u32 h;
+	u32 f_w;
+	u32 f_h;
 };
 
 struct decon_win_config {
@@ -143,7 +148,7 @@ struct decon_win_config {
             enum decon_blending             blending;
             enum decon_idma_type            idma_type;
             enum decon_pixel_format         format;
-            struct vpp_params               vpp_parm;
+            struct dpp_params               dpp_parm;
             /* no read area of IDMA */
             struct decon_win_rect           block_area;
             struct decon_win_rect           transparent_area;
@@ -156,6 +161,7 @@ struct decon_win_config {
     /* destination OSD coordinates */
     struct decon_frame dst;
     bool protection;
+    bool compression;
 };
 
 struct decon_win_config_data {
@@ -165,7 +171,7 @@ struct decon_win_config_data {
 };
 
 
-#define MAX_VPP_LOG	10
+#define MAX_DPP_LOG	10
 /* IOCTL commands */
 #define S3CFB_WIN_POSITION              _IOW('F', 203, \
 struct decon_user_window)
@@ -180,5 +186,41 @@ struct s3c_fb_user_ion_client)
 #define S3CFB_WIN_CONFIG                _IOW('F', 209, \
 struct decon_win_config_data)
 #define S3CFB_WIN_PSR_EXIT              _IOW('F', 210, int)
+
+#define S3CFB_SET_VSYNC_INT		_IOW('F', 206, __u32)
+#define S3CFB_DECON_SELF_REFRESH	_IOW('F', 207, __u32)
+#define S3CFB_WIN_CONFIG		_IOW('F', 209, \
+						struct decon_win_config_data)
+
+#define S3CFB_START_CRC			_IOW('F', 270, u32)
+#define S3CFB_SEL_CRC_BITS		_IOW('F', 271, u32)
+#define S3CFB_GET_CRC_DATA		_IOR('F', 272, u32)
+
+#define EXYNOS_GET_DISPLAYPORT_CONFIG		_IOW('F', 300, \
+						struct exynos_displayport_data)
+#define EXYNOS_SET_DISPLAYPORT_CONFIG		_IOW('F', 301, \
+						struct exynos_displayport_data)
+#define EXYNOS_DPU_DUMP		_IOW('F', 302, \
+						struct decon_win_config_data)
+#define S3CFB_POWER_MODE		_IOW('F', 223, __u32)
+enum doze_mode {
+	DECON_PWR_OFF = 0,
+	DECON_PWR_DOZE,
+	DECON_PWR_NORMAL,
+	DECON_PWR_DOZE_SUSPEND,
+	DECON_PWR_MAX,
+};
+
+#define V4L2_EVENT_DECON				(V4L2_EVENT_PRIVATE_START + 1000)
+#define V4L2_EVENT_DECON_FRAME_START	(V4L2_EVENT_DECON + 1)
+#define V4L2_EVENT_DECON_FRAME_DONE		(V4L2_EVENT_DECON + 2)
+#define V4L2_EVENT_DECON_VSYNC			(V4L2_EVENT_DECON + 3)
+
+#ifdef CONFIG_SUPPORT_DSU
+int dsu_win_config(struct decon_device *decon, struct decon_win_config *windata, struct decon_reg_data *regs);
+void dpu_dump_winconfig(struct decon_device *decon, struct decon_win_config *windata);
+int dpu_set_dsu_update_config(struct decon_device *decon, struct decon_reg_data *regs);
+void decon_set_dsu_update(u32 id, enum decon_dsi_mode dsi_mode, struct decon_param *p);
+#endif
 
 #endif
