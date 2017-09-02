@@ -1443,6 +1443,8 @@ void decon_reg_get_crc_data(u32 id, u32 *w0_data, u32 *w1_data);
 void dpu_sysreg_set_lpmux(void __iomem *sysreg);
 void decon_reg_set_win_enable(u32 id, u32 win_idx, u32 en);
 
+void decon_reg_set_block_mode(u32 id, u32 win_idx, u32 x, u32 y, u32 h, u32 w, u32 enable);
+
 /* tui feature support external to security driver(gud) */
 int decon_tui_protection(bool tui_en);
 int decon_reg_stop_nreset(u32 id, struct decon_mode_info *psr);
