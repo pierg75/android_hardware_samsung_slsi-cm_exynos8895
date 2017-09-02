@@ -88,24 +88,18 @@ static decon_idma_type getIdmaType(int32_t index)
         ret = IDMA_G1;
         break;
     case 1:
-        ret = IDMA_G2;
-        break;
-    case 2:
-        ret = IDMA_G3;
-        break;
-    case 3:
         ret = IDMA_VG0;
         break;
-    case 4:
+    case 2:
         ret = IDMA_VG1;
         break;
+    case 3:
+        ret = IDMA_VGF0;
+        break;
+    case 4:
+        ret = IDMA_VGF1;
+        break;
     case 5:
-        ret = IDMA_VGR0;
-        break;
-    case 6:
-        ret = IDMA_VGR1;
-        break;
-    case 7:
         ret = IDMA_G0;
         break;
     default:
@@ -121,8 +115,8 @@ static bool isVppType(enum decon_idma_type idma_type)
     switch (idma_type) {
     case IDMA_VG0:
     case IDMA_VG1:
-    case IDMA_VGR0:
-    case IDMA_VGR1:
+    case IDMA_VGF0:
+    case IDMA_VGF1:
         return true;
     default:
         return false;
