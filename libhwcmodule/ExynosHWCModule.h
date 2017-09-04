@@ -20,7 +20,7 @@
 #include <hardware/hwcomposer.h>
 #include "decon.h"
 
-#define VSYNC_DEV_PREFIX "/sys/devices/platform"
+#define VSYNC_DEV_PREFIX "/sys/devices/platform/"
 #define VSYNC_DEV_MIDDLE ""
 #define VSYNC_DEV_NAME  "12860000.decon_f/vsync"
 
