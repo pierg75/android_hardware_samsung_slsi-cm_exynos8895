@@ -33,8 +33,7 @@ LOCAL_C_INCLUDES := \
 	$(TOP)/frameworks/native/libs/nativewindow/include \
 	$(TOP)/frameworks/native/libs/nativebase/include
 
-LOCAL_ADDITIONAL_DEPENDENCIES += \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
+LOCAL_ADDITIONAL_DEPENDENCIES += INSTALLED_KERNEL_HEADERS
 
 ifeq ($(BOARD_HDMI_INCAPABLE), true)
 LOCAL_C_INCLUDES += $(TOP)/hardware/samsung_slsi-cm/exynos/libhdmi_dummy

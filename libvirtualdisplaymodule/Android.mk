@@ -36,8 +36,7 @@ LOCAL_C_INCLUDES := \
 	$(TOP)/frameworks/native/libs/nativebase/include \
 	$(TOP)/frameworks/native/libs/nativewindow/include
 
-LOCAL_ADDITIONAL_DEPENDENCIES += \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
+LOCAL_ADDITIONAL_DEPENDENCIES += INSTALLED_KERNEL_HEADERS
 
 LOCAL_SRC_FILES := \
 	ExynosVirtualDisplayModule.cpp
